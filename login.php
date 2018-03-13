@@ -4,7 +4,7 @@
 $username = $mysqli_real_escape_string($_POST['username']);
 $result = $mysqli_query("SELECT * FROM users WHERE username='$username'");
 
-if ( $result!empty ){ // User doesn't exist
+if (!empty($result)){ // User doesn't exist
     $_SESSION['message'] = "User with username: ".$username." doesn't exist!";
     header("location: error.php");
 }

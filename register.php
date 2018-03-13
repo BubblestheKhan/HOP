@@ -15,7 +15,7 @@ $hash = $mysqli_real_escape_string( md5( rand(0,1000) ) );
 $result = $mysqli::query("SELECT * FROM users WHERE username='$username'") or die($mysqli::error());
 
 // We know user's username exists if the rows returned are more than 0
-if ( $result!empty) {
+if (!empty($result)) {
     $_SESSION['message'] = 'User with this username already exists!';
     header("location: errorlog.php");
 
