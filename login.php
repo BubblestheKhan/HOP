@@ -1,15 +1,15 @@
 <?php
 /* User login process, checks if user exists and password is correct */
 // Escape to protect against SQL injections
-$username = $mysqli->escape_string($_POST['username']);
-$result = $mysqli->query("SELECT * FROM users WHERE username='$username'");
+$username = $mysqli_real_escape_string($_POST['username']);
+$result = $mysqli_query("SELECT * FROM users WHERE username='$username'");
 
-if ( $result->num_rows == 0 ){ // User doesn't exist
+if ( $result!empty ){ // User doesn't exist
     $_SESSION['message'] = "User with username: ".$username." doesn't exist!";
     header("location: error.php");
 }
 else { // User exists
-    $user = $result->fetch_assoc();
+    $user = $result::fetch_assoc();
 
     if ( password_verify($_POST['password'], $user['password']) ) {
 
@@ -28,4 +28,18 @@ else { // User exists
         header("location: error.php");
     }
 }
-
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login here!</title>
+	<h1>HOP In!</h1>
+</head>
+<body>
+	<form method="post">
+		<input type="text" name="username" placeholder="Enter your username">
+		<input type-"password" name="password" placeholder="Enter your password">
+		<input type="submit" value="Submit">
+	</form>
+</body>
+</html>	
