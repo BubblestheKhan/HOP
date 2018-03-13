@@ -1,17 +1,15 @@
 <?php
-// Registration process, inserts user info into the database
-
 // Set session variables to be used on profile.php page
 $_SESSION['username'] = $_POST['username'];
 $_SESSION['first_name'] = $_POST['firstname'];
 $_SESSION['last_name'] = $_POST['lastname'];
 
 // Escape all $_POST variables to protect against SQL injections
-$first_name = $mysqli->escape_string($_POST['firstname']);
-$last_name = $mysqli->escape_string($_POST['lastname']);
-$username = $mysqli->escape_string($_POST['username']);
-$password = $mysqli->escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
-$hash = $mysqli->escape_string( md5( rand(0,1000) ) );
+$first_name = $mysqli->real_escape_string($_POST['firstname']);
+$last_name = $mysqli->real_escape_string($_POST['lastname']);
+$username = $mysqli->real_escape_string($_POST['username']);
+$password = $mysqli->real_escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
+$hash = $mysqli->real_escape_string( md5( rand(0,1000) ) );
 
 // Check if user with that username already exists
 $result = $mysqli->query("SELECT * FROM users WHERE username='$username'") or die($mysqli->error());
@@ -21,7 +19,7 @@ if ( $result->num_rows > 0 ) {
     $_SESSION['message'] = 'User with this username already exists!';
     header("location: error.php");
 
-	}else { // Email doesn't already exist in a database, proceed...
+	}else { // Username doesn't already exist in a database, proceed...
 	
     //connection to database for user related tables
     $user = new mysqli('HOP', 'root', 'root', 'beer');
@@ -68,6 +66,7 @@ if ( $result->num_rows > 0 ) {
 <html>
 <head>
 	<title>Register Here!</title>
+	<h1>Join the Bar Crawl!</h1>
 </head>
 <body>
 	<form method="post">
@@ -75,7 +74,7 @@ if ( $result->num_rows > 0 ) {
         <input type="text" name="firstname" placeholder="Enter your first name">
         <input type="text" name="lastname" placeholder="Enter your last name">
         <input type="password" name="password" placeholder="Enter your password">
-	<innput type="submit" value="Submit">
+	<input type="submit" value="Submit">
 	</form>
 </body>
 </html>
