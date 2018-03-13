@@ -1,139 +1,82 @@
 <?php
-require_once 'config.php'; //include config file
+// Registration process, inserts user info into the database
 
-//Define variables with empty variables for input
-$username = $password = $confirm_password ='';
-$username_err = $password_err = $confirm_password_err = "";
+// Set session variables to be used on profile.php page
+$_SESSION['username'] = $_POST['username'];
+$_SESSION['first_name'] = $_POST['firstname'];
+$_SESSION['last_name'] = $_POST['lastname'];
 
-//Process form data upon submission
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+// Escape all $_POST variables to protect against SQL injections
+$first_name = $mysqli->escape_string($_POST['firstname']);
+$last_name = $mysqli->escape_string($_POST['lastname']);
+$username = $mysqli->escape_string($_POST['username']);
+$password = $mysqli->escape_string(password_hash($_POST['password'], PASSWORD_BCRYPT));
+$hash = $mysqli->escape_string( md5( rand(0,1000) ) );
 
-	//Validate username	
-	if(empty(trim($_POST["username"]))){
-		$username_err = "Please enter a username.";
-	} else{
-	//Prepare a select statement
-	$sql = "SELECT Id FROM users WHERE username = ?";
+// Check if user with that username already exists
+$result = $mysqli->query("SELECT * FROM users WHERE username='$username'") or die($mysqli->error());
 
-	if($stmt = mysqli_prepare($link, $sql)){
-		//Bind variables to statements to be accepted as parameters
-		mysqli_stmt_bind_param($stmt, "s", $param_username);
+// We know user's username exists if the rows returned are more than 0
+if ( $result->num_rows > 0 ) {
+    $_SESSION['message'] = 'User with this username already exists!';
+    header("location: error.php");
 
-	//Set parameters
-	$param_username = trim($_POST["username"]);
-
-	//Attempt to execute statement
-	if(mysqli_stmt_execute($stmt)){
-	//Store results
-	mysqli_stmt_store_result($stmt);
+	}else { // Email doesn't already exist in a database, proceed...
 	
-	//Check if username is already in database (taken)
-	if(mysqli_stmt_num_rows($stmt) ==1){
-		$username_err = "This username is already taken.";
-	} else{
-		$username = trim($_POST["username"]);
-		}	
-	}else{
-		echo "Ah! The keg spilled! Please try again later!";
-		}
-	}
-	//Close statement
-	mysqli_stmt_close($stmt);
-}
+    //connection to database for user related tables
+    $user = new mysqli('HOP', 'root', 'root', 'beer');
 
-	//Validate password
-	if(empty(trim($_POST['password']))){
-		$password_err = "Please enter a password.";
- 	} elseif(strlen(trim($_POST['password'])) < 7){
-		$password_err = "Password must have at least 7 characters.";
- 	} else{
-		$password = trim($_POST['password']);
-}
 
-	//Validate confirm password
-	if(empty(trim($_POST["confirm_password"]))){
-		$confirm_password_err = 'Please confirm password.';
-	} else{
-		$confirm_password = trim($_POST['comfirm_password']);
-		if($password != $confirm_password){
-			$confirm_password_err = 'Password did not match.';
-		}
-	}
+    //table for user preferences
+    $pref = "CREATE TABLE `pref_$username`(
+      beer_id INT NOT NULL AUTO_INCREMENT,
+      beer INT NOT NULL,
+      PRIMARY KEY (beer_id)
+    )";
+    $user->query($pref) or die($user->error);
 
-	//Check for input errors before inserting in database
-	if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
+    // active is 0 by DEFAULT (no need to include it here)
+    $sql = "INSERT INTO users (first_name, last_name, username, password, hash) "
+            . "VALUES ('$first_name','$last_name','$username','$password', '$hash')";
 
-	//Prepare an insert statement
-	$sql = "INSERT INTO users (username, password) VALUES (?,?)";
 
-	if($stmt = mysqli_prepare($link, $sql)){
-	//Bind variables to statements to be accepted as parameters
-	mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
+    // Add user to the database
+    if ( $mysqli->query($sql) ){
 
-	//Set parameters
-	$param_username = $username;
-	$param_password = password_hash($password, PASSWORD_DEFAULT); //Creates a password hash
+        $_SESSION['logged_in'] = true; // So we know the user has logged in
+        $_SESSION['message'] =
 
-	//Attempt to execute statement
-	if(mysqli_stmt_execute($stmt)){
-		//Redirect to login page
-		header("location: login.php");
-	} else{
-		echo "Ah! The keg spilled! Please try again later!";
-		}
-	}
+	"Welcome, $first_name ! Let's get Hoppin'!"
 
-	//Close statement
-	mysqli_stmt_close($stmt);
-	}
+        header("location: profile.php");
 
-	//Close conneciton
-	mysqli_close($link);
+        //Log account creation in reg.log
+        $date = date_create();
+        file_put_contents('reg.log', "[".date_format($date, 'm-d-Y H:i:s')."] "."Account with username: ".$username." successfully registered.".PHP_EOL, FILE_APPEND);
+
+    }
+
+    else {
+        $_SESSION['message'] = 'Registration failed!';
+        header("location: error.php");
+    }
+
 }
 ?>
 
 <!DOCTYPE HTML>
+<html>
 <head>
-	<meta charset="UTF-8">
-	<title>HOP Sign Up</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<!--/* PUT CSS HERE */-->
-
-	<style type="text/css">
-	</style>
+	<title>Register Here!</title>
 </head>
 <body>
-	<div class="wrapper">
-	<h2>Sign Up</h2>
-	<p>Become a drinking buddy! Fill out this form to create an account.</p>
-	<form method = "post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-	<div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-	
-	<label>Username</label>
-	<input type="text" name="username" class="form-control" value="<?php echo $username; ?>">
-	<span class="help-block"><?php echo $username_err; ?></span>
-	</div>
-
-	<div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
-
-	<label>Password</label>
-	<input type="password" name="password" class="form-control" value="<!--?php echo $password; ?-->">
-	<span class="help-block"><?php echo $pssword_err; ?></span>
-	</div>
-	<div clas="form-group <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
-
-	<label>Confirm Password</label>
-	<input type="password" name="confirm_password" class="form-control" value="<!--?php echo $confirm_password; ?-->">
-	<span class="help-block"><?php echo $confirm_password_err; ?></span>
-	</div>
-	<div class="form-group">
-		<input type="submit" class="btn btn-primary" value="Submit">
-		<input type="reset" class="btn btn-default" value="Reset">
-	</div>
-	<p>Already in the club? <a href="login.php">Login here!</a>.</p>
+	<form method="post">
+	<input type="text" name="username" placeholder="Enter your username">
+        <input type="text" name="firstname" placeholder="Enter your first name">
+        <input type="text" name="lastname" placeholder="Enter your last name">
+        <input type="password" name="password" placeholder="Enter your password">
+	<innput type="submit" value="Submit">
 	</form>
-	</div>
 </body>
 </html>
-
 
