@@ -1,4 +1,6 @@
 <?php
+include('errorlog.php');
+
 // Set session variables to be used on profile.php page
 $_SESSION['username'] = $_POST['username'];
 $_SESSION['first_name'] = $_POST['firstname'];
@@ -69,6 +71,7 @@ if (!empty($result)) {
 	<h1>Join the Bar Hop!</h1>
 </head>
 <body>
+	</br>
 	<form method="post">
 	<input type="text" name="username" placeholder="Enter your username">
         <input type="text" name="firstname" placeholder="Enter your first name">
@@ -76,6 +79,7 @@ if (!empty($result)) {
         <input type="password" name="password" placeholder="Enter your password">
 	<input type="submit" value="Submit">
 	</form>
+	</br>
 </body>
 </html>
 

@@ -1,4 +1,6 @@
 <?php
+
+include('errorlog.php');
 /* User login process, checks if user exists and password is correct */
 // Escape to protect against SQL injections
 $username = $mysqli_real_escape_string($_POST['username']);

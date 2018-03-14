@@ -32,4 +32,6 @@
                           </ul>
                     
                 </header><!--/#HEADER-->
+PUT A LISTING OF BEERS THE USER HAS RATED HERE
 
+</html>

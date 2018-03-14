@@ -15,21 +15,24 @@
   <div class="slider">
   <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
 
-                	<nav class="navbar navbar-default">
+                	<!--nav class="navbar navbar-default"-->
                         <!-- Brand and toggle get grouped for better mobile display -->
-                          <span class="site-name"><b>HOP<br/><br/></b></span>
+                          <!--span class="site-name"><b>HOP<br/><br/></b></span>
                           <span class="site-description">Find the beers you want!</span>
-                        </div>
+                        </div-->
                     
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse" id="mainNav" >
                           <ul class="nav main-menu navbar-nav">
 			    <!-- replace # with link -->
 			    <a href="#"><button class="button button-block" name="SEARCH BEER"/>SEARCH BEER</button></a> 
-			    <button onclick="location.href='user_favorites.php'" class="button button-block" name="FAVORITES"/>FAVORITES</button></a> 
-			    <button onclick="location.href='user_rated.php'" class="button button-block" name="RATED"/>RATED</button></a> 
-			   <button onclick="location.href='logout.php'" class="button button-block" name="LOGOUT"/>LOGOUT</button></a> 
+			    <a href="../user_favorites.php"><button class="button button-block" name="FAVORITES"/>FAVORITES</button></a> 
+			    <a href="../user_rated.php"><button class="button button-block" name="RATED"/>RATED</button></a> 
+			    <a href="../logout.php"><button class="button button-block" name="LOGOUT"/>LOGOUT</button></a> 
                           </ul>
                     
                 </header><!--/#HEADER-->
 
+PUT A LISTING OF THE USER'S FAVORITES HERE
+
+</html>
